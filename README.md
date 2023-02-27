@@ -1,1 +1,1 @@
-# Garbage_truck_reminder
+# Garbage truck reminder
