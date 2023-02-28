@@ -106,7 +106,7 @@ void loop() {
       if (dates[i]["values"].as<JsonArray>().size()) {
         //Serial.println("Now " + String(now) + " tm " + String(tm));
         if (now >= tm - 24UL * 60UL * 60UL) {
-          if (now >= tm + 24UL * 60UL * 60UL) {
+          if (now >= tm + 10UL * 60UL * 60UL) {
             //Serial.println("remove");
             dates[i]["values"].remove(0);
             digitalWrite(pin, LOW);
