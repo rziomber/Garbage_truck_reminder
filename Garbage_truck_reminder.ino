@@ -23,6 +23,7 @@ void setup() {
   pinConfig["Plastic"] = D2;
   pinConfig["Glass"] = D3;
   pinConfig["Papper"] = D8;
+  pinConfig["Bio"] = D7;
   for (const auto& item : pinConfig.as<JsonObject>()) {
     // const char* key = item.key().c_str();
     int pin = item.value().as<int>();
@@ -236,7 +237,10 @@ void handleRoot() {
       }, {
         type: 'Papper',
         color: 'gray'
-      }, ];
+      }, {
+        type: 'Bio',
+        color: 'red'
+      }];
       garbageTypes.forEach(value => {
         let div = document.createElement("div");
         div.innerHTML = `
@@ -284,7 +288,7 @@ void handleRoot() {
           else dateCell.innerText = unixTime2string(value);
           row.appendChild(dateCell);
           dateCell = document.createElement('td');
-          dateCell.innerHTML = ' <button type="button">Remove</button>';
+          dateCell.innerHTML = '<button type="button">Remove</button>';
           dateCell.addEventListener("click", function() {
             let newDates = new Set(convertTable2Array(tableBody));
             newDates.delete(this.parentNode.children[0].innerText);
