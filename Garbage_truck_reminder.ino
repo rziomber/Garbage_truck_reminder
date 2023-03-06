@@ -9,7 +9,7 @@ WiFiUDP ntpUDP;
 #define WiFimodeButton D6
 
 String ssid, pass;
-const String accesspassword = "1231111111111";
+const String accesspassword = "hasuo";
 const char* WiFiHostname = "GarbageTruckReminder";
 
 NTPClient timeClient(ntpUDP);
@@ -66,7 +66,7 @@ void setup() {
     IPAddress apIP(192, 168, 1, 1);
     WiFi.mode(WIFI_AP);
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-    WiFi.softAP("aquarium", "1231111111111");
+    WiFi.softAP("aquarium", "aquarium123");
     Serial.print("IP address:\t");
     Serial.println(WiFi.softAPIP());
     tryToConnect = 3;
@@ -96,8 +96,9 @@ void setup() {
 unsigned long lastTime = 0;
 void loop() {
   server.handleClient();
-  timeClient.update();
-  if (millis() >= lastTime + 1000UL) {
+  if (millis() >= lastTime + 500UL) {
+    if (WiFi.status() == WL_CONNECTED)
+      timeClient.update();
     unsigned long now = timeClient.getEpochTime();
     for (unsigned char i = 0; i < dates.as<JsonArray>().size(); i++) {
       unsigned long tm = dates[i]["values"][0].as<unsigned long>();
@@ -124,7 +125,7 @@ void loop() {
           } else {
             //flashing
             //digitalWrite(pin, !digitalRead(pin));
-            if (millis() % 2000 >= 1000) analogWrite(pin, 20. / 100. * 255.);
+            if (millis() % 1000 >= 500) analogWrite(pin, 20. / 100. * 255.);
             else
               digitalWrite(pin, LOW);
           }
