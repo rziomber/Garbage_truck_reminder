@@ -3,7 +3,6 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>  //https://github.com/bblanchon/ArduinoJson
-#include <NTPClient.h>    //https://github.com/arduino-libraries/NTPClient
 #include <WiFiUdp.h>
 WiFiUDP ntpUDP;
 #define WiFimodeButton D6
@@ -12,7 +11,6 @@ String ssid, pass;
 const String accesspassword = "hasuo";
 const char* WiFiHostname = "GarbageTruckReminder";
 
-NTPClient timeClient(ntpUDP);
 ESP8266WebServer server(80);
 DynamicJsonDocument dates(20000);
 DynamicJsonDocument pinConfig(100);
@@ -90,16 +88,16 @@ void setup() {
   //ask server to track these headers
   server.collectHeaders(headerkeys, headerkeyssize);
   server.begin();
-  timeClient.begin();
-  timeClient.setUpdateInterval(20UL * 60UL * 1000UL);
+  configTime(0, 0, "pool.ntp.org");
 }
 unsigned long lastTime = 0;
 void loop() {
   server.handleClient();
   if (millis() >= lastTime + 500UL) {
-    if (WiFi.status() == WL_CONNECTED)
-      timeClient.update();
-    unsigned long now = timeClient.getEpochTime();
+    //if (WiFi.status() == WL_CONNECTED)
+    // timeClient.update();
+    time_t now = time(nullptr);
+    tm* utc_tm = gmtime(&now);  //https://pl.wikibooks.org/wiki/C/tm
     for (unsigned char i = 0; i < dates.as<JsonArray>().size(); i++) {
       unsigned long tm = dates[i]["values"][0].as<unsigned long>();
       unsigned char pin = pinConfig[dates[i]["type"].as<const char*>()].as<int>();
@@ -152,12 +150,12 @@ void loop() {
     }*/
     //Serial.println(timeClient.getEpochTime());
 
-    if (tryToConnect == 0 && millis() > 45UL * 60UL * 1000UL && timeClient.getHours() != 2 && timeClient.getEpochTime() > 1677429692UL) {
+    if (tryToConnect == 0 && millis() > 45UL * 60UL * 1000UL && utc_tm->tm_hour != 2 && now > 1677429692UL) {
       WiFi.softAPdisconnect();
       WiFi.disconnect();
       WiFi.mode(WIFI_OFF);
       tryToConnect = 1;
-    } else if (tryToConnect == 1 && timeClient.getHours() == 2) {
+    } else if (tryToConnect == 1 && utc_tm->tm_hour == 2) {
       connectToAccessPoint();
       tryToConnect = 0;
     }
